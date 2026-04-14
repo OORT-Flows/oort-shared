@@ -8,6 +8,12 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ## [Unreleased]
 
+### Added
+- `full_name` optional claim on `TokenClaims` and `OORTContext`. Populated from the JWT `full_name` claim when present; `None` otherwise. Old tokens without the claim remain valid.
+
+### JWT contract change
+- New optional claim `full_name` (string). The Hub must include it when encoding tokens for downstream products to read `OORTContext.full_name`.
+
 ## [0.1.0] — 2026-04-11
 
 Initial extraction from the `oort-hub` repo into a standalone package. This is the first release every OORT product will pin against.

@@ -6,6 +6,7 @@ from uuid import UUID
 class TokenClaims:
     sub: UUID
     email: str
+    full_name: str | None
     tenant_id: UUID | None
     tenant_slug: str | None
     role: str
@@ -20,6 +21,7 @@ class TokenClaims:
 class OORTContext:
     user_id: UUID
     email: str
+    full_name: str | None
     tenant_id: UUID | None
     tenant_slug: str | None
     role: str
@@ -31,6 +33,7 @@ class OORTContext:
         return cls(
             user_id=claims.sub,
             email=claims.email,
+            full_name=claims.full_name,
             tenant_id=claims.tenant_id,
             tenant_slug=claims.tenant_slug,
             role=claims.role,

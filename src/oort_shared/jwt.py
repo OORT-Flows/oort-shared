@@ -28,6 +28,7 @@ def decode_token(token: str, secret: str, algorithm: str = "HS256") -> TokenClai
         return TokenClaims(
             sub=UUID(payload["sub"]),
             email=payload["email"],
+            full_name=payload.get("full_name"),
             tenant_id=UUID(payload["tenant_id"]) if payload.get("tenant_id") else None,
             tenant_slug=payload.get("tenant_slug"),
             role=payload["role"],
