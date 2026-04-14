@@ -1,6 +1,6 @@
 [project]
 name = "oort-shared"
-version = "0.1.0"
+version = "0.1.1"
 description = "Shared JWT validation and identity context for OORT products"
 readme = "README.md"
 requires-python = ">=3.12"

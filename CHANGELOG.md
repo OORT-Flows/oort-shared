@@ -8,6 +8,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ## [Unreleased]
 
+## [0.1.1] — 2026-04-13
+
 ### Added
 - `full_name` optional claim on `TokenClaims` and `OORTContext`. Populated from the JWT `full_name` claim when present; `None` otherwise. Old tokens without the claim remain valid.
 
@@ -41,5 +43,6 @@ Initial extraction from the `oort-hub` repo into a standalone package. This is t
 | `product_access` | list of slug strings | no | defaults to `[]` |
 | `jti` | string | no | unique token id; required by the Hub for blacklisting on logout |
 
-[Unreleased]: https://github.com/oort-labs/oort-shared/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/oort-labs/oort-shared/compare/v0.1.1...HEAD
+[0.1.1]: https://github.com/oort-labs/oort-shared/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/oort-labs/oort-shared/releases/tag/v0.1.0
