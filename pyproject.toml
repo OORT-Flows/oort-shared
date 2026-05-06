@@ -1,6 +1,6 @@
 [project]
 name = "oort-shared"
-version = "0.1.1"
+version = "0.2.0"
 description = "Shared JWT validation and identity context for OORT products"
 readme = "README.md"
 requires-python = ">=3.12"
@@ -22,6 +22,8 @@ classifiers = [
 dependencies = [
     "pyjwt>=2.9.0",
     "fastapi>=0.115.0",
+    "httpx>=0.27.0",
+    "pydantic>=2.7.0",
 ]
 
 [project.urls]
@@ -33,7 +35,6 @@ Changelog = "https://github.com/oort-labs/oort-shared/blob/main/CHANGELOG.md"
 dev = [
     "pytest>=8.3.0",
     "pytest-asyncio>=0.24.0",
-    "httpx>=0.27.0",
     "ruff>=0.6.0",
     "mypy>=1.11.0",
 ]
