@@ -1,4 +1,4 @@
-from oort_shared.auth import get_oort_context, require_product_access
+from oort_shared.auth import get_oort_context, has_feature, require_product_access
 from oort_shared.errors import AccessDeniedError, TokenError
 from oort_shared.jwt import decode_token
 from oort_shared.schemas import OORTContext, TokenClaims
@@ -13,5 +13,6 @@ __all__ = [
     "decode_token",
     "emit_usage_event",
     "get_oort_context",
+    "has_feature",
     "require_product_access",
 ]

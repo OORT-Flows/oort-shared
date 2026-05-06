@@ -12,6 +12,7 @@ class TokenClaims:
     role: str
     group_ids: list[UUID] = field(default_factory=list)
     product_access: list[str] = field(default_factory=list)
+    features: list[str] = field(default_factory=list)
     iat: int = 0
     exp: int = 0
     jti: str = ""
@@ -27,6 +28,7 @@ class OORTContext:
     role: str
     group_ids: list[UUID]
     product_access: list[str]
+    features: list[str]
 
     @classmethod
     def from_claims(cls, claims: TokenClaims) -> "OORTContext":
@@ -39,4 +41,5 @@ class OORTContext:
             role=claims.role,
             group_ids=list(claims.group_ids),
             product_access=list(claims.product_access),
+            features=list(claims.features),
         )

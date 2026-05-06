@@ -8,6 +8,16 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ## [Unreleased]
 
+## [0.3.0] — 2026-05-06
+
+### Added
+- `features` claim support on `TokenClaims` and `OORTContext` (`list[str]`, default `[]`). Each entry is `"<product_slug>:<key>"`. Older HUB tokens without the claim continue to decode cleanly with `features == []` — no breaking change.
+- `has_feature(ctx: OORTContext, key: str) -> bool` — predicate that returns `key in ctx.features`. Standardizes the call site so leaf products don't reach into the list directly.
+- Re-exports `has_feature` from the package root.
+
+### JWT contract change
+- New optional claim `features` (list of strings, format `"<product_slug>:<key>"`). The Hub must include it when encoding tokens for downstream products to read `OORTContext.features`. Absence of the claim is treated as an empty list, so older Hub deployments stay compatible.
+
 ## [0.2.0] — 2026-05-06
 
 ### Added
@@ -57,7 +67,8 @@ Initial extraction from the `oort-hub` repo into a standalone package. This is t
 | `product_access` | list of slug strings | no | defaults to `[]` |
 | `jti` | string | no | unique token id; required by the Hub for blacklisting on logout |
 
-[Unreleased]: https://github.com/oort-labs/oort-shared/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/oort-labs/oort-shared/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/oort-labs/oort-shared/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/oort-labs/oort-shared/compare/v0.1.1...v0.2.0
 [0.1.1]: https://github.com/oort-labs/oort-shared/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/oort-labs/oort-shared/releases/tag/v0.1.0

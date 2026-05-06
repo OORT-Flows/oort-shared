@@ -16,6 +16,11 @@ def require_product_access(claims: TokenClaims, product_slug: str) -> None:
         raise AccessDeniedError(f"No access to product '{product_slug}'")
 
 
+def has_feature(ctx: OORTContext, key: str) -> bool:
+    """Return True if `key` (format ``<product_slug>:<flag>``) is enabled on the token."""
+    return key in ctx.features
+
+
 def get_oort_context(
     creds: Annotated[HTTPAuthorizationCredentials | None, Depends(_bearer)],
 ) -> OORTContext:

@@ -34,6 +34,7 @@ def decode_token(token: str, secret: str, algorithm: str = "HS256") -> TokenClai
             role=payload["role"],
             group_ids=[UUID(g) for g in payload.get("group_ids", [])],
             product_access=list(payload.get("product_access", [])),
+            features=list(payload.get("features", [])),
             iat=int(payload["iat"]),
             exp=int(payload["exp"]),
             jti=str(payload.get("jti", "")),
