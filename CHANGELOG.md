@@ -8,6 +8,15 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ## [Unreleased]
 
+## [0.3.1] — 2026-05-08
+
+### Fixed
+- `emit_usage_event` now sends the request body wrapped in the `{"events": [...]}` envelope expected by HUB's `POST /api/v1/usage/events` (`UsageEventBatchIn`). Previous releases (`0.2.0`, `0.3.0`) sent the events as a bare JSON list, which HUB rejected with `422 model_attributes_type` (`loc=["body"]`). Because the helper swallows non-2xx responses with a `logger.warning` and never raises, the bug was silent — every usage emission from leaf products has been failing since `0.2.0`. Bump to `v0.3.1` and check leaf-product logs for the warning to confirm.
+- Test `test_emit_happy_path` was asserting the bug rather than the contract; now asserts the envelope shape.
+
+### JWT contract change
+- None.
+
 ## [0.3.0] — 2026-05-06
 
 ### Added

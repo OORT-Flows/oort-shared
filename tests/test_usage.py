@@ -45,8 +45,11 @@ async def test_emit_happy_path() -> None:
     assert req.headers["authorization"] == "Bearer ost_test_token"
 
     parsed = json.loads(req.read())
-    assert isinstance(parsed, list) and len(parsed) == 1
-    item = parsed[0]
+    # HUB expects `{"events": [...]}` envelope per UsageEventBatchIn —
+    # sending a bare list returns 422 with `loc=["body"]`.
+    assert isinstance(parsed, dict) and list(parsed.keys()) == ["events"]
+    assert isinstance(parsed["events"], list) and len(parsed["events"]) == 1
+    item = parsed["events"][0]
     assert item["event_type"] == "flow.execution"
     assert item["unit"] == "credits"
     assert item["quantity"] == "1.50"

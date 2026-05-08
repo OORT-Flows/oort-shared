@@ -61,7 +61,13 @@ async def emit_usage_event(
 
     url = f"{hub_url.rstrip('/')}/api/v1/usage/events"
     headers = {"Authorization": f"Bearer {service_token}"}
-    payload: list[dict[str, Any]] = [event.model_dump(mode="json") for event in events]
+    # HUB expects the batch wrapped in an envelope: `{"events": [...]}` (see
+    # `app/usage/schemas.py::UsageEventBatchIn` in the hub repo). Sending the
+    # bare list here returns 422 with `loc=["body"]` and the events list
+    # echoed back as `input` — that's the canonical signature of this bug.
+    payload: dict[str, Any] = {
+        "events": [event.model_dump(mode="json") for event in events]
+    }
 
     last_error: str | None = None
     for attempt in range(_MAX_ATTEMPTS):
