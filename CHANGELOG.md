@@ -8,6 +8,31 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ## [Unreleased]
 
+## [0.4.0] — 2026-05-13
+
+### Added
+- `roles` claim on `TokenClaims` and `OORTContext` (`list[str]`, default `[]`). Entries are either bare tenant-wide role names (`"Admin"`, `"User"`, `"FinOps Manager"`, `"Department Manager"`, `"Service Account"`) or per-product roles in the form `"<role>:<product_slug>"` (`"Builder:flows"`, `"Reviewer:assessment-ai"`). `super_admin` is **never** in this list — it remains a global flag on the legacy `role` claim.
+- `session_id` claim on `TokenClaims` and `OORTContext` (`str | None`, default `None`). Correlates the token with the HUB `sessions` table row.
+- `has_role(ctx, name)` — exact tenant-wide membership check against `ctx.roles`.
+- `has_role_in_product(ctx, name, product_slug)` — checks `f"{name}:{product_slug}"` membership in `ctx.roles`.
+- `is_super_admin(ctx)` — returns `ctx.role == "super_admin"`. Does **not** inspect `ctx.roles`; super-admin is intentionally outside the list.
+- Re-exports `has_role`, `has_role_in_product`, `is_super_admin` from the package root.
+
+### Deprecated
+- `role: str` on `TokenClaims` / `OORTContext`. HUB still emits it during the transition window and the decoder still requires it, so existing code keeps working unchanged. Removal is planned for `0.5.0` once leaf products have migrated to `roles` + `is_super_admin`.
+
+### JWT contract change
+- New optional claim `roles` (list of strings). Format:
+  - Tenant-wide role: bare name, e.g. `"Admin"`, `"User"`, `"FinOps Manager"`.
+  - Per-product role: `"<role>:<product_slug>"`, e.g. `"Builder:flows"`, `"Reviewer:assessment-ai"`.
+  - `super_admin` is **never** included; it lives only on the legacy `role` claim.
+- New optional claim `session_id` (string). Correlates with the HUB `sessions` row.
+- `role` claim remains **required** for `0.4.x`. HUB dual-emits `role` and `roles` during the transition; the decoder is tolerant of either:
+  - If `roles` is present in the payload, it is used verbatim.
+  - If `roles` is absent and `role == "super_admin"`, `ctx.roles` is `[]`.
+  - If `roles` is absent and `role` is anything else, `ctx.roles` is `[role]`.
+- Tokens minted by older HUB deployments (with only `role`, no `roles`, no `session_id`) continue to decode cleanly. This is the load-bearing compatibility guarantee for the transition.
+
 ## [0.3.1] — 2026-05-08
 
 ### Fixed
@@ -76,7 +101,9 @@ Initial extraction from the `oort-hub` repo into a standalone package. This is t
 | `product_access` | list of slug strings | no | defaults to `[]` |
 | `jti` | string | no | unique token id; required by the Hub for blacklisting on logout |
 
-[Unreleased]: https://github.com/oort-labs/oort-shared/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/oort-labs/oort-shared/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/oort-labs/oort-shared/compare/v0.3.1...v0.4.0
+[0.3.1]: https://github.com/oort-labs/oort-shared/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/oort-labs/oort-shared/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/oort-labs/oort-shared/compare/v0.1.1...v0.2.0
 [0.1.1]: https://github.com/oort-labs/oort-shared/compare/v0.1.0...v0.1.1

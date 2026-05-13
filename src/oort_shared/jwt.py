@@ -24,6 +24,14 @@ def decode_token(token: str, secret: str, algorithm: str = "HS256") -> TokenClai
         if claim not in payload:
             raise TokenError(f"Missing claim: {claim}")
 
+    role = payload["role"]
+    if "roles" in payload:
+        roles = list(payload["roles"])
+    elif role == "super_admin":
+        roles = []
+    else:
+        roles = [role]
+
     try:
         return TokenClaims(
             sub=UUID(payload["sub"]),
@@ -31,10 +39,12 @@ def decode_token(token: str, secret: str, algorithm: str = "HS256") -> TokenClai
             full_name=payload.get("full_name"),
             tenant_id=UUID(payload["tenant_id"]) if payload.get("tenant_id") else None,
             tenant_slug=payload.get("tenant_slug"),
-            role=payload["role"],
+            role=role,
             group_ids=[UUID(g) for g in payload.get("group_ids", [])],
             product_access=list(payload.get("product_access", [])),
             features=list(payload.get("features", [])),
+            roles=roles,
+            session_id=payload.get("session_id"),
             iat=int(payload["iat"]),
             exp=int(payload["exp"]),
             jti=str(payload.get("jti", "")),

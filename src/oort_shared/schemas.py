@@ -13,6 +13,8 @@ class TokenClaims:
     group_ids: list[UUID] = field(default_factory=list)
     product_access: list[str] = field(default_factory=list)
     features: list[str] = field(default_factory=list)
+    roles: list[str] = field(default_factory=list)
+    session_id: str | None = None
     iat: int = 0
     exp: int = 0
     jti: str = ""
@@ -29,6 +31,8 @@ class OORTContext:
     group_ids: list[UUID]
     product_access: list[str]
     features: list[str]
+    roles: list[str] = field(default_factory=list)
+    session_id: str | None = None
 
     @classmethod
     def from_claims(cls, claims: TokenClaims) -> "OORTContext":
@@ -42,4 +46,6 @@ class OORTContext:
             group_ids=list(claims.group_ids),
             product_access=list(claims.product_access),
             features=list(claims.features),
+            roles=list(claims.roles),
+            session_id=claims.session_id,
         )

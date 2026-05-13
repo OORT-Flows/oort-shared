@@ -21,6 +21,21 @@ def has_feature(ctx: OORTContext, key: str) -> bool:
     return key in ctx.features
 
 
+def has_role(ctx: OORTContext, name: str) -> bool:
+    """Return True if `name` is present in ctx.roles as a tenant-wide role."""
+    return name in ctx.roles
+
+
+def has_role_in_product(ctx: OORTContext, name: str, product_slug: str) -> bool:
+    """Return True if `<name>:<product_slug>` is present in ctx.roles."""
+    return f"{name}:{product_slug}" in ctx.roles
+
+
+def is_super_admin(ctx: OORTContext) -> bool:
+    """Return True if the token represents a super admin (global flag, never in `roles`)."""
+    return ctx.role == "super_admin"
+
+
 def get_oort_context(
     creds: Annotated[HTTPAuthorizationCredentials | None, Depends(_bearer)],
 ) -> OORTContext:

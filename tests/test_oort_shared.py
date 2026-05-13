@@ -15,6 +15,9 @@ from oort_shared import (
     decode_token,
     get_oort_context,
     has_feature,
+    has_role,
+    has_role_in_product,
+    is_super_admin,
     require_product_access,
 )
 
@@ -102,6 +105,65 @@ def test_has_feature_empty_features_always_false():
     secret = os.environ["JWT_SECRET"]
     ctx = OORTContext.from_claims(decode_token(_make_token(secret), secret))
     assert has_feature(ctx, "flows:beta_canvas") is False
+
+
+def test_legacy_token_without_roles_mirrors_role():
+    secret = os.environ["JWT_SECRET"]
+    token = _make_token(secret, role="tenant_admin")  # no `roles` claim
+    ctx = OORTContext.from_claims(decode_token(token, secret))
+    assert ctx.roles == ["tenant_admin"]
+
+
+def test_legacy_super_admin_token_without_roles_yields_empty_list():
+    secret = os.environ["JWT_SECRET"]
+    token = _make_token(secret, role="super_admin")  # no `roles` claim
+    ctx = OORTContext.from_claims(decode_token(token, secret))
+    assert ctx.roles == []
+
+
+def test_new_token_with_roles_claim_uses_it_verbatim():
+    secret = os.environ["JWT_SECRET"]
+    token = _make_token(secret, role="tenant_admin", roles=["Admin"])
+    ctx = OORTContext.from_claims(decode_token(token, secret))
+    assert ctx.roles == ["Admin"]
+    assert has_role(ctx, "Admin") is True
+    assert has_role(ctx, "User") is False
+
+
+def test_per_product_role_membership():
+    secret = os.environ["JWT_SECRET"]
+    token = _make_token(secret, roles=["Builder:flows"])
+    ctx = OORTContext.from_claims(decode_token(token, secret))
+    assert has_role_in_product(ctx, "Builder", "flows") is True
+    assert has_role_in_product(ctx, "Builder", "assessment-ai") is False
+    assert has_role(ctx, "Builder") is False
+
+
+def test_session_id_absent_is_none():
+    secret = os.environ["JWT_SECRET"]
+    ctx = OORTContext.from_claims(decode_token(_make_token(secret), secret))
+    assert ctx.session_id is None
+
+
+def test_session_id_present_is_preserved():
+    secret = os.environ["JWT_SECRET"]
+    token = _make_token(secret, session_id="sess-abc-123")
+    ctx = OORTContext.from_claims(decode_token(token, secret))
+    assert ctx.session_id == "sess-abc-123"
+
+
+def test_is_super_admin_true_for_super_admin_role():
+    secret = os.environ["JWT_SECRET"]
+    token = _make_token(secret, role="super_admin", roles=["Admin"])
+    ctx = OORTContext.from_claims(decode_token(token, secret))
+    assert is_super_admin(ctx) is True
+
+
+def test_is_super_admin_false_for_non_super_admin_role():
+    secret = os.environ["JWT_SECRET"]
+    token = _make_token(secret, role="tenant_admin", roles=["Admin"])
+    ctx = OORTContext.from_claims(decode_token(token, secret))
+    assert is_super_admin(ctx) is False
 
 
 def test_get_oort_context_carries_features():

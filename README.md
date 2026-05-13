@@ -49,7 +49,10 @@ from oort_shared import (
     decode_token,           # raw decode → TokenClaims
     require_product_access, # raises AccessDeniedError if slug missing
     get_oort_context,       # FastAPI Depends() → OORTContext
-    OORTContext,            # typed context: user_id, tenant_id, role, group_ids, product_access
+    has_role,               # tenant-wide role membership
+    has_role_in_product,    # per-product role membership
+    is_super_admin,         # global super-admin flag
+    OORTContext,            # typed context: user_id, tenant_id, role, roles, session_id, …
     TokenClaims,            # raw claims dataclass
     TokenError,             # signature / expiry / malformed failures
     AccessDeniedError,      # product_slug not in claims.product_access
@@ -79,6 +82,28 @@ OORTCtx = Annotated[OORTContext, Depends(get_oort_context)]
 async def list_workflows(ctx: OORTCtx):
     return await repo.list_by_tenant(db, ctx.tenant_id)
 ```
+
+### Role checks — `has_role`, `has_role_in_product`, `is_super_admin`
+
+`ctx.roles` carries tenant-wide roles as bare names (`"Admin"`, `"User"`, `"FinOps Manager"`) and per-product roles as `"<role>:<product_slug>"` (`"Builder:flows"`). `super_admin` is **never** in `ctx.roles` — it lives only on `ctx.role` and is exposed through `is_super_admin`.
+
+```python
+from oort_shared import has_role, has_role_in_product, is_super_admin
+
+# Tenant-wide role
+if not has_role(ctx, "Admin"):
+    raise HTTPException(403)
+
+# Per-product role
+if not has_role_in_product(ctx, "Builder", "flows"):
+    raise HTTPException(403)
+
+# Global super-admin escape hatch (bypasses per-tenant checks)
+if is_super_admin(ctx):
+    return await repo.list_all(db)
+```
+
+> **`role` is deprecated.** The legacy `ctx.role` string is still populated for `0.4.x` but will be removed in `0.5.0`. Migrate call sites to `has_role` / `has_role_in_product` / `is_super_admin`.
 
 ---
 
