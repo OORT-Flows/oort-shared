@@ -8,6 +8,18 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ## [Unreleased]
 
+## [0.5.0] — 2026-05-22
+
+### Added
+- `department_id` claim on `TokenClaims` and `OORTContext` (`UUID | None`, default `None`). Mirrors the HUB-emitted department the user belongs to.
+- `department_name` claim on `TokenClaims` and `OORTContext` (`str | None`, default `None`). Human-readable name of the department referenced by `department_id`.
+
+### JWT contract change
+- New optional claim `department_id` (string UUID). Decoded to `UUID`; absent or falsy value yields `None`.
+- New optional claim `department_name` (string). Absent value yields `None`.
+- Both are paired the same way as `tenant_id` / `tenant_slug`. HUB emits them together; tokens issued before this release omit them and decode cleanly to `None`.
+- The legacy `role` claim removal previously slated for `0.5.0` is **deferred to `0.6.0`** — `role` remains required and unchanged in `0.5.x`.
+
 ## [0.4.0] — 2026-05-13
 
 ### Added
@@ -86,22 +98,29 @@ Initial extraction from the `oort-hub` repo into a standalone package. This is t
 - `TokenClaims` — frozen dataclass mirroring the raw decoded JWT payload.
 - `TokenError`, `AccessDeniedError` — narrow exception types so consumers can catch precisely.
 
-### JWT contract (v0.1.0)
+### JWT contract (current — through v0.5.0)
 
-| Claim | Type | Required | Notes |
-|---|---|---|---|
-| `sub` | UUID string | yes | Hub user id |
-| `email` | string | yes | |
-| `role` | string | yes | `super_admin` / `admin` / `member` |
-| `iat` | int (unix ts) | yes | |
-| `exp` | int (unix ts) | yes | |
-| `tenant_id` | UUID string | no | `null` for unscoped super admins |
-| `tenant_slug` | string | no | |
-| `group_ids` | list of UUID strings | no | defaults to `[]` |
-| `product_access` | list of slug strings | no | defaults to `[]` |
-| `jti` | string | no | unique token id; required by the Hub for blacklisting on logout |
+| Claim | Type | Required | Since | Notes |
+|---|---|---|---|---|
+| `sub` | UUID string | yes | 0.1.0 | Hub user id |
+| `email` | string | yes | 0.1.0 | |
+| `full_name` | string | no | 0.1.1 | `null` if absent |
+| `tenant_id` | UUID string | no | 0.1.0 | `null` for unscoped super admins |
+| `tenant_slug` | string | no | 0.1.0 | |
+| `department_id` | UUID string | no | 0.5.0 | `null` if absent; paired with `department_name` |
+| `department_name` | string | no | 0.5.0 | `null` if absent |
+| `role` | string | yes | 0.1.0 | `super_admin` / `admin` / `member`. **Deprecated** — removal planned for 0.6.0 |
+| `group_ids` | list of UUID strings | no | 0.1.0 | defaults to `[]` |
+| `product_access` | list of slug strings | no | 0.1.0 | defaults to `[]` |
+| `features` | list of strings | no | 0.3.0 | each `"<product_slug>:<key>"`; defaults to `[]` |
+| `roles` | list of strings | no | 0.4.0 | bare tenant-wide name or `"<role>:<product_slug>"`; never includes `super_admin`; defaults to `[]` |
+| `session_id` | string | no | 0.4.0 | correlates with the HUB `sessions` row; `null` if absent |
+| `iat` | int (unix ts) | yes | 0.1.0 | |
+| `exp` | int (unix ts) | yes | 0.1.0 | |
+| `jti` | string | no | 0.1.0 | unique token id; required by the Hub for blacklisting on logout |
 
-[Unreleased]: https://github.com/oort-labs/oort-shared/compare/v0.4.0...HEAD
+[Unreleased]: https://github.com/oort-labs/oort-shared/compare/v0.5.0...HEAD
+[0.5.0]: https://github.com/oort-labs/oort-shared/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/oort-labs/oort-shared/compare/v0.3.1...v0.4.0
 [0.3.1]: https://github.com/oort-labs/oort-shared/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/oort-labs/oort-shared/compare/v0.2.0...v0.3.0

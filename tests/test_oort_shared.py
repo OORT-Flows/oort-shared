@@ -152,6 +152,22 @@ def test_session_id_present_is_preserved():
     assert ctx.session_id == "sess-abc-123"
 
 
+def test_department_absent_is_none():
+    secret = os.environ["JWT_SECRET"]
+    ctx = OORTContext.from_claims(decode_token(_make_token(secret), secret))
+    assert ctx.department_id is None
+    assert ctx.department_name is None
+
+
+def test_department_present_is_preserved():
+    secret = os.environ["JWT_SECRET"]
+    dept_id = str(uuid4())
+    token = _make_token(secret, department_id=dept_id, department_name="Engineering")
+    ctx = OORTContext.from_claims(decode_token(token, secret))
+    assert str(ctx.department_id) == dept_id
+    assert ctx.department_name == "Engineering"
+
+
 def test_is_super_admin_true_for_super_admin_role():
     secret = os.environ["JWT_SECRET"]
     token = _make_token(secret, role="super_admin", roles=["Admin"])

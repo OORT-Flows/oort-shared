@@ -9,6 +9,8 @@ class TokenClaims:
     full_name: str | None
     tenant_id: UUID | None
     tenant_slug: str | None
+    department_id: UUID | None
+    department_name: str | None
     role: str
     group_ids: list[UUID] = field(default_factory=list)
     product_access: list[str] = field(default_factory=list)
@@ -27,6 +29,8 @@ class OORTContext:
     full_name: str | None
     tenant_id: UUID | None
     tenant_slug: str | None
+    department_id: UUID | None
+    department_name: str | None
     role: str
     group_ids: list[UUID]
     product_access: list[str]
@@ -42,6 +46,8 @@ class OORTContext:
             full_name=claims.full_name,
             tenant_id=claims.tenant_id,
             tenant_slug=claims.tenant_slug,
+            department_id=claims.department_id,
+            department_name=claims.department_name,
             role=claims.role,
             group_ids=list(claims.group_ids),
             product_access=list(claims.product_access),
