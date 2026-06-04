@@ -37,6 +37,11 @@ class UsageEvent(BaseModel):
     tenant_id: UUID
     user_id: UUID | None = None
     idempotency_key: str | None = None
+    # ISO-4217 currency for ``unit="money"`` events (Flows money contract,
+    # ADR 0001). Ignored for count units. The HUB reads this preferentially
+    # and falls back to ``metadata["currency"]`` during the credits→money
+    # rollover, so older emitters keep working.
+    currency: str | None = Field(default=None, max_length=3)
     metadata: dict[str, Any] = Field(default_factory=dict)
 
 

@@ -8,6 +8,15 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ## [Unreleased]
 
+## [0.6.0] — 2026-06-04
+
+### Added
+- `currency` field on `usage.UsageEvent` (`str | None`, default `None`, `max_length=3`). Carries the ISO-4217 code for `unit="money"` events under the Flows money contract (ADR 0001). Ignored for count units. The HUB reads it preferentially and falls back to `metadata["currency"]` during the credits→money rollover, so older emitters (which packed currency into `metadata`) keep working unchanged.
+
+### JWT contract change
+- **None.** This release only touches `usage.UsageEvent`; no token claim is added, removed, renamed, or retyped.
+- The legacy `role` claim removal previously slated for `0.6.0` remains **deferred** — `role` is still required and unchanged. Coordinated removal will be its own release once leaf products finish migrating to `roles` + `is_super_admin`.
+
 ## [0.5.0] — 2026-05-22
 
 ### Added
